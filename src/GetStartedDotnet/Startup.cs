@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 public class Startup
 {
     public IConfigurationRoot Configuration { get; set; }
+    readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
     public Startup(IHostingEnvironment env)
     {
@@ -138,6 +139,15 @@ public class Startup
 
         services.AddSwaggerGen();
 
+        services.AddCors(options =>
+        {
+            options.AddPolicy(name: MyAllowSpecificOrigins,
+                              builder =>
+                              {
+                                  builder.WithOrigins("http://localhost:4200");
+                              });
+        });
+
     }
 
     public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -176,6 +186,8 @@ public class Startup
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
+
+        app.UseCors(MyAllowSpecificOrigins);
     }
 
     class LoggingHandler : DelegatingHandler
