@@ -1,7 +1,7 @@
 ---
 applications:
 - name: DemoCore
-  random-route: true
+  random-route: false
   memory: 128M
   env:
     DOTNET_CLI_TELEMETRY_OPTOUT: 1

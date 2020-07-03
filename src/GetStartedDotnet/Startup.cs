@@ -135,22 +135,11 @@ public class Startup
             .AddHttpMessageHandler<LoggingHandler>();
         }
 
+        services.AddCors();
+
         services.AddMvc();
 
         services.AddSwaggerGen();
-
-        services.AddCors(options =>
-        {
-            options.AddPolicy(name: MyAllowSpecificOrigins,
-                              builder =>
-                              {
-                                  builder.WithOrigins("http://localhost:4200")
-                                  .AllowAnyHeader()
-                                  .AllowAnyMethod()
-                                  .AllowAnyOrigin();
-                              });
-        });
-
     }
 
     public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -172,6 +161,12 @@ public class Startup
 
         app.UseStaticFiles();
 
+        app.UseCors(builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+
         app.UseMvc(routes =>
         {
             routes.MapRoute(
@@ -190,7 +185,7 @@ public class Startup
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
 
-        app.UseCors(MyAllowSpecificOrigins);
+        
     }
 
     class LoggingHandler : DelegatingHandler
