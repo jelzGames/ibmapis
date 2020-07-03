@@ -66,10 +66,11 @@ namespace GetStartedDotnet.Controllers
 
         // POST api/users
         [HttpPut("{id}")]
-        public async Task<dynamic> Put([FromBody]UserModel user, Guid id)
+        public async Task<dynamic> Put([FromBody]UserModel user, Guid id, string rev)
         {
             if (_cloudantService != null)
             {
+                user._rev = rev;
                 var response = await _cloudantService.Update(user, id);
                 Console.WriteLine("PUT RESULT " + response);
                 return response;
