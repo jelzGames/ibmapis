@@ -1,10 +1,11 @@
-﻿using GetStartedDotnet.Models;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace GetStartedDotnet.Services
+namespace GetStartedDotnet.Domain.Interfaces
 {
-    public interface ICloudantService
+    public interface IRepository
     {
         Task<dynamic> CreateAsync(UserModel item);
         Task<dynamic> GetAllAsync();

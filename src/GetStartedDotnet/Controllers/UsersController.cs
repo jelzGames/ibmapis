@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GetStartedDotnet.Models;
-using GetStartedDotnet.Services;
 using System.Threading.Tasks;
 using System.Text.Encodings.Web;
 using System;
+using GetStartedDotnet.Domain.Interfaces;
 
 namespace GetStartedDotnet.Controllers
 {
@@ -11,9 +11,9 @@ namespace GetStartedDotnet.Controllers
     public class UsersController : Controller
     {
         private readonly HtmlEncoder _htmlEncoder;
-        private readonly ICloudantService _cloudantService;
+        private readonly IServices _cloudantService;
 
-        public UsersController(HtmlEncoder htmlEncoder, ICloudantService cloudantService = null)
+        public UsersController(HtmlEncoder htmlEncoder, IServices cloudantService = null)
         {
             _cloudantService = cloudantService;
             _htmlEncoder = htmlEncoder;
@@ -49,7 +49,7 @@ namespace GetStartedDotnet.Controllers
 
         // POST api/users
         [HttpPost]
-        public async Task<dynamic> Post([FromBody]UserModel user)
+        public async Task<dynamic> Post([FromBody]Domain.Interfaces.UserModel user)
         {
             if (_cloudantService != null)
             {

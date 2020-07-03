@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using GetStartedDotnet.Models;
-using GetStartedDotnet.Services;
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -13,6 +12,9 @@ using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using GetStartedDotnet.Domain.Interfaces;
+using GetStartedDotnet.Domain.Services;
+using GetStartedDotnet.Infrastructure;
 
 public class Startup
 {
@@ -110,30 +112,20 @@ public class Startup
     {
         // Add framework services.
 
-        var creds = new Creds()
-        {
-            username = Configuration["cloudantNoSQLDB:0:credentials:username"],
-            password = Configuration["cloudantNoSQLDB:0:credentials:password"],
-            host = Configuration["cloudantNoSQLDB:0:credentials:host"]
-        };
+        services.AddAuthorization();
+           
+        services.AddScoped<IDB>(db => new DB(
+            Configuration["cloudantNoSQLDB:0:credentials:username"],
+            Configuration["cloudantNoSQLDB:0:credentials:password"],
+            Configuration["cloudantNoSQLDB:0:credentials:host"],
+            Configuration["cloudantNoSQLDB:0:credentials:url"],
+            "users")
+        );
 
-        if (creds.username != null && creds.password != null && creds.host != null)
-        {
-            services.AddAuthorization();
-            services.AddSingleton(typeof(Creds), creds);
-            services.AddTransient<ICloudantService, CloudantService>();
-            services.AddTransient<LoggingHandler>();
-            services.AddHttpClient("cloudant", client =>
-            {
-                var auth = Convert.ToBase64String(Encoding.ASCII.GetBytes(creds.username + ":" + creds.password));
-
-                client.BaseAddress = new Uri(Configuration["cloudantNoSQLDB:0:credentials:url"]);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", auth);
-            })
-            .AddHttpMessageHandler<LoggingHandler>();
-        }
+        services.AddTransient<IServices, Services>();
+        services.AddTransient<IRepository, Repository>();
+            
+        services.AddTransient<LoggingHandler>();
 
         services.AddCors();
 
@@ -144,7 +136,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
     {
-        var cloudantService = ((ICloudantService)app.ApplicationServices.GetService(typeof(ICloudantService)));
+        //var cloudantService = ((ICloudantService)app.ApplicationServices.GetService(typeof(ICloudantService)));
 
         loggerFactory.AddConsole(Configuration.GetSection("Logging"));
         loggerFactory.AddDebug();
